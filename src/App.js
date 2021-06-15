@@ -7,8 +7,8 @@ function App() {
       <header className="App-header">
        <p>Pathfinding app</p>
       </header>
-      <GridTable>
-      </GridTable>
+      <GridTable/>
+      
     </div>
   );
 }
