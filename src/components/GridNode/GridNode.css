@@ -12,4 +12,12 @@
 .node-start {
   background-color: red;
 }
+
+.node-visited {
+  background-color: blue;
+}
+
+.node-shortest-path {
+  background-color: yellow;
+}
   
