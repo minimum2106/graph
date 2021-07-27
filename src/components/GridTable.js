@@ -1,7 +1,9 @@
 import React from 'react'
-// import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 import GridNode from './GridNode/GridNode'
+
+import './GridTable.css';
 
 import {dijkstra, getNodesInShortestPathOrder} from '../algos/dijkstra';
 
@@ -53,8 +55,10 @@ function animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder) {
       }
       setTimeout(() => {
         const node = visitedNodesInOrder[i];
-        document.getElementById(`node-${node.row}-${node.col}`).className =
-          'node node-visited';
+        const {row, col} = node
+        if((row !== START_NODE_ROW || col !== START_NODE_COL) && (row !== FINISH_NODE_ROW || col !== FINISH_NODE_COL)) {
+            document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
+        }
       }, 10 * i);
     }
   }
@@ -63,8 +67,10 @@ function animateShortestPath(nodesInShortestPathOrder) {
     for (let i = 0; i < nodesInShortestPathOrder.length; i++) {
       setTimeout(() => {
         const node = nodesInShortestPathOrder[i];
-        document.getElementById(`node-${node.row}-${node.col}`).className =
-          'node node-shortest-path';
+        const {row, col} = node
+        if((row !== START_NODE_ROW || col !== START_NODE_COL) && (row !== FINISH_NODE_ROW || col !== FINISH_NODE_COL)) {
+            document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-shortest-path';
+        }
       }, 50 * i);
     }
   }
@@ -80,14 +86,59 @@ function visualizeDijkstra(gridTable) {
 }
 
 
-
-
 function GridTable() {
-    const gridTable = gridTableInit(ROWS, COLUMNS);
+    const [gridTable, setGridTable] = useState(gridTableInit(ROWS, COLUMNS));
+    const [isMouseDown, setMouseDown] = useState(false);
+    const [buttonState, setButtonState] = useState("")
 
-//    useEffect(() => {
+    useEffect(() => {
+        console.log('GRID TABLE CHANGED')
+    },[gridTable]);
+
+
+    function handleMouseEntered(row, col) {
+        if (!isMouseDown) return
+        console.log('mouse entered')
+
+        console.log(`${row} ${col}`)
        
-//    })
+        var newGridTable = gridTable.map( node => 
+            (node.col === col && node.row === row) 
+            ? {...node, isWall : true}
+            : node
+        )
+            
+        setGridTable(newGridTable) 
+        console.log("setting new table")      
+        
+        // console.log(newGridTable)
+    }
+
+    // function getNewGridWithWallToggled(row, col, gridTable) {
+    //     const node = gridTable[row][col];
+    //     const newNode = {
+    //         ...node,
+    //         isWall: !node.isWall,
+    //     };
+
+    //     newGrid[row][col] = newNode;
+        
+    //     console.log(newGrid)
+    //     return newGrid;
+    // }
+
+    
+    function handleMouseDown(row, col) {
+        console.log('mouse down')
+        console.log(row)
+        console.log(col)
+        if(buttonState === "chooseStartNode") {
+            document.getElementById("start_node_btn").className = "start_node_btn node_pressed"
+        }
+
+
+        setMouseDown(true)
+    }
 
     return (
         <div>
@@ -107,6 +158,9 @@ function GridTable() {
                                         col = {col}
                                         row = {row}
                                         isWall = {isWall}
+                                        handleMouseEntered = {handleMouseEntered}
+                                        handleMouseDown ={handleMouseDown}
+                                        setMouseDown = {setMouseDown}
                                         ></GridNode>
                                 )})
                             }
@@ -114,7 +168,9 @@ function GridTable() {
                     )
                 })
             }
-            <button onClick={() => visualizeDijkstra(gridTable)}>Dijkstra</button>
+            <button id="run_btn" onClick={() => visualizeDijkstra(gridTable)}>Dijkstra</button>
+            <button id="start_node_btn" onClick={() => setButtonState("chooseStartNode")}>choose start node</button>
+            <button id="finish_node_btn" onClick={() => setButtonState("chooseFinishNode")}>choose finish node</button>
         </div>
     )
 }

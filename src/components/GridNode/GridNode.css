@@ -20,4 +20,8 @@
 .node-shortest-path {
   background-color: yellow;
 }
+
+.node-wall {
+  background-color: black;
+}
   
