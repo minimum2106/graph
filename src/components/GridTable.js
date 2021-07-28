@@ -34,8 +34,7 @@ const gridTableInit = (rows, cols) => {
 
 const createNode = (row, col) => {
     return {
-        row,
-        col,
+        row, col,
         isStart: row === START_NODE_ROW && col === START_NODE_COL,
         isFinish: row === FINISH_NODE_ROW && col === FINISH_NODE_COL,
         distance: Infinity,
@@ -98,34 +97,15 @@ function GridTable() {
 
     function handleMouseEntered(row, col) {
         if (!isMouseDown) return
-        console.log('mouse entered')
+        console.log(gridTable[row][col].isWall)
 
-        console.log(`${row} ${col}`)
-       
-        var newGridTable = gridTable.map( node => 
-            (node.col === col && node.row === row) 
-            ? {...node, isWall : true}
-            : node
-        )
-            
-        setGridTable(newGridTable) 
-        console.log("setting new table")      
-        
-        // console.log(newGridTable)
+        setGridTable(
+            gridTable.map(rows => {return rows.map(node =>
+                (node.col === col && node.row === row)
+                ? {...node, isWall : !node.isWall}
+                : node 
+        )}))
     }
-
-    // function getNewGridWithWallToggled(row, col, gridTable) {
-    //     const node = gridTable[row][col];
-    //     const newNode = {
-    //         ...node,
-    //         isWall: !node.isWall,
-    //     };
-
-    //     newGrid[row][col] = newNode;
-        
-    //     console.log(newGrid)
-    //     return newGrid;
-    // }
 
     
     function handleMouseDown(row, col) {
@@ -138,6 +118,11 @@ function GridTable() {
 
 
         setMouseDown(true)
+    }
+
+    function handleMouseUp() {
+        console.log("mouse up")
+        setMouseDown(false)
     }
 
     return (
@@ -160,7 +145,7 @@ function GridTable() {
                                         isWall = {isWall}
                                         handleMouseEntered = {handleMouseEntered}
                                         handleMouseDown ={handleMouseDown}
-                                        setMouseDown = {setMouseDown}
+                                        setMouseDown = {handleMouseUp}
                                         ></GridNode>
                                 )})
                             }
@@ -171,8 +156,11 @@ function GridTable() {
             <button id="run_btn" onClick={() => visualizeDijkstra(gridTable)}>Dijkstra</button>
             <button id="start_node_btn" onClick={() => setButtonState("chooseStartNode")}>choose start node</button>
             <button id="finish_node_btn" onClick={() => setButtonState("chooseFinishNode")}>choose finish node</button>
+            <button id="wall_created_btn" onClick={() => setButtonState("createWall")}>create wall</button>
         </div>
     )
 }
+
+// create a button to trigger create wall 
 
 export default GridTable
