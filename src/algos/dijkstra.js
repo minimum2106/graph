@@ -8,6 +8,8 @@ export function dijkstra(grid, startNode, finishNode) {
     const unvisitedNodes = getAllNodes(grid);
     while (!!unvisitedNodes.length) {
       sortNodesByDistance(unvisitedNodes);
+      // console.log("unvisited node")
+      // console.log(unvisitedNodes)
       const closestNode = unvisitedNodes.shift();
       // If we encounter a wall, we skip it.
       if (closestNode.isWall) continue;
@@ -55,12 +57,16 @@ export function dijkstra(grid, startNode, finishNode) {
   
   // Backtracks from the finishNode to find the shortest path.
   // Only works when called *after* the dijkstra method above.
-  export function getNodesInShortestPathOrder(finishNode) {
+  export function getNodesInShortestPathOrder(finishNode, startNode) {
     const nodesInShortestPathOrder = [];
     let currentNode = finishNode;
-    while (currentNode !== null) {
+    while (currentNode !== null && currentNode !== startNode) {
+      // console.log("shortest path")
+      // console.log(currentNode)
       nodesInShortestPathOrder.unshift(currentNode);
       currentNode = currentNode.previousNode;
     }
+    console.log("node shortest")
+    console.log(nodesInShortestPathOrder)
     return nodesInShortestPathOrder;
   }
