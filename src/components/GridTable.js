@@ -7,6 +7,7 @@ import './GridTable.css';
 
 import { dijkstra, getNodesInShortestPathOrder } from '../algos/dijkstra';
 
+
 const COLUMNS = 59;
 const ROWS = 15;
 
@@ -15,47 +16,71 @@ function GridTable() {
     const [startNodeRow, setStartNodeRow] = useState(10)
     const [finishNodeCol, setFinishNodeCol] = useState(35)
     const [finishNodeRow, setFinishNodeRow] = useState(10)
+    const [isMouseDown, setMouseDown] = useState(false);
+    const [buttonState, setButtonState] = useState("")
+
+    const gridTableInit = (rows, cols) => {
+
+        const nodes = [];
+        for (let row = 0; row < rows; row++) {
+            let currentRow = [];
+            for (let col = 0; col < cols; col++) {
+                currentRow.push(createNode(row, col));
+            }
+
+            nodes.push(currentRow);
+        }
+
+        return nodes;
+    }
+
+    const createNode = (row, col) => {
+        return {
+            row, col,
+            isStart: row === startNodeRow && col === startNodeCol,
+            isFinish: row === finishNodeRow && col === finishNodeCol,
+            distance: Infinity,
+            isVisited: false,
+            isWall: false,
+            previousNode: null,
+        };
+    }
+
+    const [gridTable, setGridTable] = useState(gridTableInit(ROWS, COLUMNS));
+
+    function clearWall() {
+        setGridTable(gridTable.map((rows) => {
+            return rows.map((node) => {
+                const newNode = (node.isWall === true)? {...node, isWall : false} : {...node}
+                return newNode
+            })
+        }))
+    }
+
 
     function clearGrid() {
         if (true) {
           const newGrid = gridTable.slice();
           for (const row of newGrid) {
             for (const node of row) {
-              let nodeClassName = document.getElementById(
-                `node-${node.row}-${node.col}`,
-              ).className;
+              let nodeClassName = document.getElementById(`node-${node.row}-${node.col}`,).className;
               if (
                 nodeClassName !== 'node node-start' &&
                 nodeClassName !== 'node node-finish' &&
                 nodeClassName !== 'node node-wall'
               ) {
-                document.getElementById(`node-${node.row}-${node.col}`).className =
-                  'node';
-                node.isVisited = false;
-                node.distance = Infinity;
-                // node.distanceToFinishNode =
-                //   Math.abs(this.state.FINISH_NODE_ROW - node.row) +
-                //   Math.abs(finishNodeCol - node.col);
+                document.getElementById(`node-${node.row}-${node.col}`).className = 'node';
               }
-              if (nodeClassName === 'node node-finish') {
-                node.isVisited = false;
-                node.distance = Infinity;
-                // node.distanceToFinishNode = 0;
-              }
-              if (nodeClassName === 'node node-start') {
-                node.isVisited = false;
-                node.distance = Infinity;
-                // node.distanceToFinishNode =
-                //   Math.abs(finishNodeRow - node.row) +
-                //   Math.abs(finishNodeCol - node.col);
-                node.isStart = true;
-                node.isWall = false;
-                node.previousNode = null;
-                node.isNode = true;
-              }
+
+              setGridTable(gridTable.map(rows => {
+                  return rows.map(node => {
+                      return {...node, isVisited : false, distance: Infinity, previousNode : null, isWall: false}
+                  })
+              }))
             }
           }
         }
+        console.log(gridTable)
       }
 
     function handleMouseEntered(row, col) {
@@ -67,16 +92,13 @@ function GridTable() {
             gridTable.map(rows => {
                 return rows.map(node =>
                     (node.col === col && node.row === row)
-                        ? { ...node, isWall: !node.isWall }
+                        ? { ...node, isWall: true }
                         : node
                 )
             }))
     }
 
     function handleMouseDown(row, col) {
-        console.log('mouse down')
-        console.log(row)
-        console.log(col)
         if (buttonState === "start") {
             setGridTable(
                 gridTable.map(rows => {
@@ -115,47 +137,22 @@ function GridTable() {
     }
 
     function handleMouseUp() {
-        console.log("mouse up")
         setMouseDown(false)
     }
 
 
     function handleClickedBtn(btnName) {
         clearGrid()
+        if(buttonState){
+            document.getElementById(buttonState).className = "btn"   
+        }
+
         setButtonState(btnName)
-        console.log(btnName)
         document.getElementById(btnName).className = "btn btn_clicked"
     }
 
-    const gridTableInit = (rows, cols) => {
-
-        const nodes = [];
-        for (let row = 0; row < rows; row++) {
-            let currentRow = [];
-            for (let col = 0; col < cols; col++) {
-                currentRow.push(createNode(row, col));
-            }
-
-            nodes.push(currentRow);
-        }
-
-        return nodes;
-    }
-
-    const createNode = (row, col) => {
-        return {
-            row, col,
-            isStart: row === startNodeRow && col === startNodeCol,
-            isFinish: row === finishNodeRow && col === finishNodeCol,
-            distance: Infinity,
-            isVisited: false,
-            isShortestPath: false,
-            isWall: false,
-            previousNode: null,
-        };
-    }
-
     function animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder) {
+
         for (let i = 0; i <= visitedNodesInOrder.length; i++) {
           if (i === visitedNodesInOrder.length) {
             setTimeout(() => {
@@ -198,29 +195,20 @@ function GridTable() {
         const startNode = gridTable[startNodeRow][startNodeCol];
         const finishNode = gridTable[finishNodeRow][finishNodeCol];
         const visitedNodesInOrder = dijkstra(gridTable, startNode, finishNode);
+        console.log("after get visited nodes in order")
+        console.log(gridTable)
         const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode, startNode);
         animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
     }
 
-    const [gridTable, setGridTable] = useState(gridTableInit(ROWS, COLUMNS));
-    const [isMouseDown, setMouseDown] = useState(false);
-    const [buttonState, setButtonState] = useState("")
-
     useEffect(() => {
-        console.log('GRID TABLE CHANGED')
-    }, [gridTable]);
 
-    // const [nodesInShortestPathOrder, setNodeInShortestPathOrder] = useState([])
+    }, [gridTable])
 
-    // useEffect(() => {
-    //     let i = 0
-    //     if(i < nodesInShortestPathOrder.length) {
-    //         setInterval(() => {
-    //             setGridTable(gridTable.map())
-    //         }
-    //         )
-    //     }
-    // }, [nodesInShortestPathOrder])
+    
+    useEffect(() => {
+        console.log(gridTable)
+    })
 
     return (
         <div>
@@ -230,17 +218,15 @@ function GridTable() {
                         <div key={rowIndex}>
                             {
                                 row.map((node, nodeIndex) => {
-                                    const { isStart, isFinish, col, row, isWall, isShortestPath, isVisited } = node;
+                                    const { isStart, isFinish, col, row, isWall } = node;
                                     return (
                                         <GridNode
                                             key={nodeIndex}
                                             isFinish={isFinish}
                                             isStart={isStart}
-                                            isVisited={isVisited}
                                             col={col}
                                             row={row}
                                             isWall={isWall}
-                                            isShortestPath={isShortestPath}
                                             handleMouseEntered={handleMouseEntered}
                                             handleMouseDown={handleMouseDown}
                                             setMouseDown={handleMouseUp}
@@ -257,6 +243,7 @@ function GridTable() {
             <button id="finish" className="btn" onClick={() => handleClickedBtn("finish")}>choose finish node</button>
             <button id="wall" className="btn" onClick={() => handleClickedBtn("wall")}>create wall</button>
             <button id="clear" className="btn" onClick={() => clearGrid()}>clear</button>
+            <button id="clear-wall" className="btn" onClick={() => clearWall()}>clear wall</button>
         </div>
     )
 }

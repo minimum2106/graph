@@ -34,7 +34,7 @@ export function dijkstra(grid, startNode, finishNode) {
       neighbor.previousNode = node;
     }
   }
-  
+
   function getUnvisitedNeighbors(node, grid) {
     const neighbors = [];
     const {col, row} = node;
