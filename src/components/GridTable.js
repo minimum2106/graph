@@ -11,6 +11,36 @@ import { dijkstra, getNodesInShortestPathOrder } from '../algos/dijkstra';
 const COLUMNS = 59;
 const ROWS = 15;
 
+
+const gridTableInit = (startNode, finishNode, rows, cols) => {
+    const nodes = [];
+    for (let row = 0; row < rows; row++) {
+        let currentRow = [];
+        for (let col = 0; col < cols; col++) {
+            currentRow.push(createNode(startNode, finishNode, row, col));
+        }
+
+        nodes.push(currentRow);
+    }
+
+    return nodes;
+}
+
+const createNode = (startNode, finishNode,row, col) => {
+    const {startNodeCol, startNodeRow} = startNode
+    const {finishNodeCol, finishNodeRow} = finishNode
+    
+    return {
+        row, col,
+        isStart: row === startNodeRow && col === startNodeCol,
+        isFinish: row === finishNodeRow && col === finishNodeCol,
+        distance: Infinity,
+        isVisited: false,
+        isWall: false,
+        previousNode: null,
+    };
+}
+
 function GridTable() {
     const [startNodeCol, setStartNodeCol] = useState(15)
     const [startNodeRow, setStartNodeRow] = useState(10)
@@ -19,34 +49,7 @@ function GridTable() {
     const [isMouseDown, setMouseDown] = useState(false);
     const [buttonState, setButtonState] = useState("")
 
-    const gridTableInit = (rows, cols) => {
-
-        const nodes = [];
-        for (let row = 0; row < rows; row++) {
-            let currentRow = [];
-            for (let col = 0; col < cols; col++) {
-                currentRow.push(createNode(row, col));
-            }
-
-            nodes.push(currentRow);
-        }
-
-        return nodes;
-    }
-
-    const createNode = (row, col) => {
-        return {
-            row, col,
-            isStart: row === startNodeRow && col === startNodeCol,
-            isFinish: row === finishNodeRow && col === finishNodeCol,
-            distance: Infinity,
-            isVisited: false,
-            isWall: false,
-            previousNode: null,
-        };
-    }
-
-    const [gridTable, setGridTable] = useState(gridTableInit(ROWS, COLUMNS));
+    const [gridTable, setGridTable] = useState(gridTableInit({startNodeCol, startNodeRow}, {finishNodeCol, finishNodeRow}, ROWS, COLUMNS));
 
     function clearWall() {
         setGridTable(gridTable.map((rows) => {
@@ -205,10 +208,6 @@ function GridTable() {
 
     }, [gridTable])
 
-    
-    useEffect(() => {
-        console.log(gridTable)
-    })
 
     return (
         <div>
