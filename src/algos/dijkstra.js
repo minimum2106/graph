@@ -2,7 +2,7 @@
 // in which they were visited. Also makes nodes point back to their
 // previous node, effectively allowing us to compute the shortest path
 // by backtracking from the finish node.
-export function dijkstra(grid, startNode, finishNode) {
+function dijkstra(grid, startNode, finishNode) {
     const visitedNodesInOrder = [];
     startNode.distance = 0;
     const unvisitedNodes = getAllNodes(grid);
@@ -57,7 +57,7 @@ export function dijkstra(grid, startNode, finishNode) {
   
   // Backtracks from the finishNode to find the shortest path.
   // Only works when called *after* the dijkstra method above.
-  export function getNodesInShortestPathOrder(finishNode, startNode) {
+  function getNodesInShortestPathOrder(finishNode, startNode) {
     const nodesInShortestPathOrder = [];
     let currentNode = finishNode;
     while (currentNode !== null && currentNode !== startNode) {
@@ -70,3 +70,54 @@ export function dijkstra(grid, startNode, finishNode) {
     console.log(nodesInShortestPathOrder)
     return nodesInShortestPathOrder;
   }
+
+  function animateDijkstra(startNode, finishNode, visitedNodesInOrder, nodesInShortestPathOrder) {
+    const {startNodeCol, startNodeRow} = startNode 
+    const {finishNodeCol, finishNodeRow} = finishNode
+    for (let i = 0; i <= visitedNodesInOrder.length; i++) {
+      if (i === visitedNodesInOrder.length) {
+        setTimeout(() => {
+          animateShortestPath(startNode, finishNode, nodesInShortestPathOrder);
+        }, 10 * i);
+        return;
+      }
+      setTimeout(() => {
+        const node = visitedNodesInOrder[i];
+        const {row, col} = node
+        if((row !== startNodeRow || col !== startNodeCol) && (row !== finishNodeRow || col !== finishNodeCol)) {
+            document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
+        }
+      }, 10 * i);
+    }
+  }
+
+function animateShortestPath(startNode, finishNode, nodesInShortestPathOrder) {
+  const {startNodeCol, startNodeRow} = startNode 
+  const {finishNodeCol, finishNodeRow} = finishNode
+
+  for (let i = 0; i < nodesInShortestPathOrder.length; i++) {
+        // console.log(nodesInShortestPathOrder)
+        setTimeout(() => {
+            const nodeChanged = nodesInShortestPathOrder[i];
+            const {row, col} = nodeChanged
+        
+            if((row !== startNodeRow || col !== startNodeCol) && (row !== finishNodeRow || col !== finishNodeCol)) {
+                document.getElementById(`node-${row}-${col}`).className = 'node node-shortest-path';
+            }
+        }, 100 * i);
+    //   console.log(gridTable)
+    }
+  }
+
+
+export function visualizeDijkstra(start, finish, gridTable) {
+    const {startNodeCol, startNodeRow} = start
+    const {finishNodeCol, finishNodeRow} = finish
+
+    const startNode = gridTable[startNodeRow][startNodeCol];
+    const finishNode = gridTable[finishNodeRow][finishNodeCol];
+
+    const visitedNodesInOrder = dijkstra(gridTable, startNode, finishNode);
+    const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode, startNode);
+    animateDijkstra(start, finish, visitedNodesInOrder, nodesInShortestPathOrder);
+}

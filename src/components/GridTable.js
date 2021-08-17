@@ -5,7 +5,7 @@ import GridNode from './GridNode/GridNode'
 
 import './GridTable.css';
 
-import { dijkstra, getNodesInShortestPathOrder } from '../algos/dijkstra';
+import {visualizeDijkstra} from '../algos/dijkstra';
 
 
 const COLUMNS = 59;
@@ -48,6 +48,7 @@ function GridTable() {
     const [finishNodeRow, setFinishNodeRow] = useState(10)
     const [isMouseDown, setMouseDown] = useState(false);
     const [buttonState, setButtonState] = useState("")
+    const [isRunning, setIsRunning] = useState(false)
 
     const [gridTable, setGridTable] = useState(gridTableInit({startNodeCol, startNodeRow}, {finishNodeCol, finishNodeRow}, ROWS, COLUMNS));
 
@@ -154,56 +155,6 @@ function GridTable() {
         document.getElementById(btnName).className = "btn btn_clicked"
     }
 
-    function animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder) {
-
-        for (let i = 0; i <= visitedNodesInOrder.length; i++) {
-          if (i === visitedNodesInOrder.length) {
-            setTimeout(() => {
-              animateShortestPath(nodesInShortestPathOrder);
-            }, 10 * i);
-            return;
-          }
-          setTimeout(() => {
-            const node = visitedNodesInOrder[i];
-            const {row, col} = node
-            if((row !== startNodeRow || col !== startNodeCol) && (row !== finishNodeRow || col !== finishNodeCol)) {
-                document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
-            }
-          }, 10 * i);
-        }
-      }
-    
-    function animateShortestPath(nodesInShortestPathOrder) {
-        for (let i = 0; i < nodesInShortestPathOrder.length; i++) {
-            // console.log(nodesInShortestPathOrder)
-            setTimeout(() => {
-                const nodeChanged = nodesInShortestPathOrder[i];
-                const {row, col} = nodeChanged
-            
-                if((row !== startNodeRow || col !== startNodeCol) && (row !== finishNodeRow || col !== finishNodeCol)) {
-                    document.getElementById(`node-${row}-${col}`).className = 'node node-shortest-path';
-                }
-            }, 100 * i);
-        //   console.log(gridTable)
-        }
-        console.log("finish visualization")
-        console.log(gridTable)
-        console.log('end loop')
-      }
-
-
-    function visualizeDijkstra(gridTable) {
-        console.log('run')
-        console.log(gridTable)
-        const startNode = gridTable[startNodeRow][startNodeCol];
-        const finishNode = gridTable[finishNodeRow][finishNodeCol];
-        const visitedNodesInOrder = dijkstra(gridTable, startNode, finishNode);
-        console.log("after get visited nodes in order")
-        console.log(gridTable)
-        const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode, startNode);
-        animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
-    }
-
     useEffect(() => {
 
     }, [gridTable])
@@ -237,11 +188,17 @@ function GridTable() {
                     )
                 })
             }
-            <button id="run_btn" className="btn" onClick={() => visualizeDijkstra(gridTable)}>Dijkstra</button>
+            <button id="run_btn" className="btn" disabled={isRunning? true : false} onClick={() => {
+                setIsRunning(true)
+                clearGrid()
+                visualizeDijkstra({startNodeCol, startNodeRow},{finishNodeCol, finishNodeRow},gridTable)
+                setIsRunning(false)
+                }
+            }>Dijkstra</button>
             <button id="start" className="btn" onClick={() => handleClickedBtn("start")}>choose start node</button>
             <button id="finish" className="btn" onClick={() => handleClickedBtn("finish")}>choose finish node</button>
             <button id="wall" className="btn" onClick={() => handleClickedBtn("wall")}>create wall</button>
-            <button id="clear" className="btn" onClick={() => clearGrid()}>clear</button>
+            <button id="clear" disabled={isRunning ? true : false} className="btn" onClick={() => clearGrid()}>clear</button>
             <button id="clear-wall" className="btn" onClick={() => clearWall()}>clear wall</button>
         </div>
     )
