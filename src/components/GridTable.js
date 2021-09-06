@@ -52,6 +52,7 @@ function GridTable() {
 
     const [gridTable, setGridTable] = useState(gridTableInit({startNodeCol, startNodeRow}, {finishNodeCol, finishNodeRow}, ROWS, COLUMNS));
 
+
     function clearWall() {
         setGridTable(gridTable.map((rows) => {
             return rows.map((node) => {
@@ -63,34 +64,32 @@ function GridTable() {
 
 
     function clearGrid() {
-        if (true) {
-          const newGrid = gridTable.slice();
-          for (const row of newGrid) {
+        const newGrid = gridTable.slice();
+        for (const row of newGrid) {
             for (const node of row) {
-              let nodeClassName = document.getElementById(`node-${node.row}-${node.col}`,).className;
-              if (
+                let nodeClassName = document.getElementById(`node-${node.row}-${node.col}`,).className;
+                if (
                 nodeClassName !== 'node node-start' &&
                 nodeClassName !== 'node node-finish' &&
                 nodeClassName !== 'node node-wall'
-              ) {
+                ) {
                 document.getElementById(`node-${node.row}-${node.col}`).className = 'node';
-              }
+                }
 
-              setGridTable(gridTable.map(rows => {
-                  return rows.map(node => {
-                      return {...node, isVisited : false, distance: Infinity, previousNode : null, isWall: false}
-                  })
-              }))
+                setGridTable(gridTable.map(rows => {
+                    return rows.map(node => {
+                        return {...node, isVisited : false, distance: Infinity, previousNode : null, isWall: false}
+                    })
+                }))
             }
-          }
         }
-        console.log(gridTable)
       }
 
     function handleMouseEntered(row, col) {
         if (!isMouseDown) return
         if (buttonState !== "wall") return
-        console.log(gridTable[row][col].isWall)
+
+        console.log("get in")
 
         setGridTable(
             gridTable.map(rows => {
@@ -103,62 +102,67 @@ function GridTable() {
     }
 
     function handleMouseDown(row, col) {
-        if (buttonState === "start") {
-            setGridTable(
-                gridTable.map(rows => {
-                    return rows.map(node => {
-                        if (node.col === col && node.row === row) {
-                            setStartNodeCol(col)
-                            setStartNodeRow(row)
-
-                            return { ...node, isStart: true }
+        switch (buttonState) {
+            case "start" :
+                setGridTable(
+                    gridTable.map(rows => {
+                        return rows.map(node => {
+                            if (node.col === col && node.row === row) {
+                                setStartNodeCol(col)
+                                setStartNodeRow(row)
+    
+                                return { ...node, isStart: true }
+                            }
+    
+                            return { ...node, isStart: false }
                         }
+                        )
+                    }))
 
-                        return { ...node, isStart: false }
-                    }
-                    )
-                }))
-        }
+                break;
 
-        if (buttonState === "finish") {
-            setGridTable(
-                gridTable.map(rows => {
-                    return rows.map(node => {
-                        if (node.col === col && node.row === row) {
-                            setFinishNodeCol(col)
-                            setFinishNodeRow(row)
-
-                            return { ...node, isFinish: true }
+            case "finish" :
+                setGridTable(
+                    gridTable.map(rows => {
+                        return rows.map(node => {
+                            if (node.col === col && node.row === row) {
+                                setFinishNodeCol(col)
+                                setFinishNodeRow(row)
+    
+                                return { ...node, isFinish: true }
+                            }
+    
+                            return { ...node, isFinish: false }
                         }
+                        )
+                    }))
 
-                        return { ...node, isFinish: false }
-                    }
-                    )
-                }))
+                break;
+
+            default:
+                return;
         }
 
         setMouseDown(true)
     }
 
-    function handleMouseUp() {
-        setMouseDown(false)
-    }
-
-
     function handleClickedBtn(btnName) {
-        clearGrid()
-        if(buttonState){
-            document.getElementById(buttonState).className = "btn"   
-        }
-
-        setButtonState(btnName)
-        document.getElementById(btnName).className = "btn btn_clicked"
+            clearGrid()
+            if(buttonState){
+                document.getElementById(buttonState).className = "btn"   
+            }
+            
+            setButtonState(btnName)
+            document.getElementById(btnName).className = "btn btn_clicked"
     }
+
+    // const handleStartBtn = handleClickedBtn("start")
+    // const handleWallBtn = handleClickedBtn("wall")
+    // const handleFinishBtn = handleClickedBtn("finish ")
 
     useEffect(() => {
 
     }, [gridTable])
-
 
     return (
         <div>
@@ -179,7 +183,7 @@ function GridTable() {
                                             isWall={isWall}
                                             handleMouseEntered={handleMouseEntered}
                                             handleMouseDown={handleMouseDown}
-                                            setMouseDown={handleMouseUp}
+                                            setMouseDown={setMouseDown}
                                         ></GridNode>
                                     )
                                 })
@@ -205,5 +209,7 @@ function GridTable() {
 }
 
 // create a button to trigger create wall 
+
+// refractor your code after knowing about the immutability of a program also deep clone
 
 export default GridTable

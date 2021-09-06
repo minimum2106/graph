@@ -14,7 +14,7 @@ function GridNode(props) {
         <div className= {`node ${extraClassName}`}
             id={`node-${row}-${col}`}
             onMouseDown = {() => handleMouseDown(row, col)}
-            onMouseUp = {() => setMouseDown()}
+            onMouseUp = {() => setMouseDown(false)}
             onMouseEnter = {() => handleMouseEntered(row, col)}
              ></div>
     )
