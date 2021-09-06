@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import GridNode from './GridNode/GridNode'
 
@@ -48,7 +48,7 @@ function GridTable() {
     const [finishNodeRow, setFinishNodeRow] = useState(10)
     const [isMouseDown, setMouseDown] = useState(false);
     const [buttonState, setButtonState] = useState("")
-    const [isRunning, setIsRunning] = useState(false)
+    // const [isRunning, setIsRunning] = useState(false)
 
     const [gridTable, setGridTable] = useState(gridTableInit({startNodeCol, startNodeRow}, {finishNodeCol, finishNodeRow}, ROWS, COLUMNS));
 
@@ -78,7 +78,7 @@ function GridTable() {
 
                 setGridTable(gridTable.map(rows => {
                     return rows.map(node => {
-                        return {...node, isVisited : false, distance: Infinity, previousNode : null, isWall: false}
+                        return {...node, isVisited : false, distance: Infinity, previousNode : null}
                     })
                 }))
             }
@@ -102,6 +102,7 @@ function GridTable() {
     }
 
     function handleMouseDown(row, col) {
+        setMouseDown(true)
         switch (buttonState) {
             case "start" :
                 setGridTable(
@@ -142,11 +143,10 @@ function GridTable() {
             default:
                 return;
         }
-
-        setMouseDown(true)
     }
 
     function handleClickedBtn(btnName) {
+        return function() {
             clearGrid()
             if(buttonState){
                 document.getElementById(buttonState).className = "btn"   
@@ -154,15 +154,12 @@ function GridTable() {
             
             setButtonState(btnName)
             document.getElementById(btnName).className = "btn btn_clicked"
+        }
     }
 
-    // const handleStartBtn = handleClickedBtn("start")
-    // const handleWallBtn = handleClickedBtn("wall")
-    // const handleFinishBtn = handleClickedBtn("finish ")
-
-    useEffect(() => {
-
-    }, [gridTable])
+    const handleStartBtn = handleClickedBtn("start")
+    const handleWallBtn = handleClickedBtn("wall")
+    const handleFinishBtn = handleClickedBtn("finish ")
 
     return (
         <div>
@@ -192,17 +189,15 @@ function GridTable() {
                     )
                 })
             }
-            <button id="run_btn" className="btn" disabled={isRunning? true : false} onClick={() => {
-                setIsRunning(true)
+            <button id="run_btn" className="btn" onClick={() => {
                 clearGrid()
                 visualizeDijkstra({startNodeCol, startNodeRow},{finishNodeCol, finishNodeRow},gridTable)
-                setIsRunning(false)
                 }
             }>Dijkstra</button>
-            <button id="start" className="btn" onClick={() => handleClickedBtn("start")}>choose start node</button>
-            <button id="finish" className="btn" onClick={() => handleClickedBtn("finish")}>choose finish node</button>
-            <button id="wall" className="btn" onClick={() => handleClickedBtn("wall")}>create wall</button>
-            <button id="clear" disabled={isRunning ? true : false} className="btn" onClick={() => clearGrid()}>clear</button>
+            <button id="start" className="btn" onClick={() => handleStartBtn()}>choose start node</button>
+            <button id="finish" className="btn" onClick={() => handleFinishBtn()}>choose finish node</button>
+            <button id="wall" className="btn" onClick={() => handleWallBtn()}>create wall</button>
+            <button id="clear" className="btn" onClick={() => clearGrid()}>clear</button>
             <button id="clear-wall" className="btn" onClick={() => clearWall()}>clear wall</button>
         </div>
     )
